@@ -828,6 +828,25 @@ tbody tr:hover{
     padding:12px 14px;
   }
 
+}.status-paid{
+  color:#15803d !important;
+  background:#dcfce7;
+  padding:4px 9px;
+  border-radius:8px;
+}
+
+.status-partial{
+  color:#1d4ed8 !important;
+  background:#dbeafe;
+  padding:4px 9px;
+  border-radius:8px;
+}
+
+.status-pending{
+  color:#a16207 !important;
+  background:#fef3c7;
+  padding:4px 9px;
+  border-radius:8px;
 }
 </style>
 </head>
@@ -1382,10 +1401,19 @@ function updateModalSummary(){
       currency:'BRL'
     });
 
-  document.getElementById('modalStatus').textContent =
-    received >= total && total > 0 ? 'Pago' :
-    received > 0 ? 'Parcial' :
-    'Pendente';
+  const status =
+  received >= total && total > 0 ? 'Pago' :
+  received > 0 ? 'Parcial' :
+  'Pendente';
+
+const statusElement = document.getElementById('modalStatus');
+
+statusElement.textContent = status;
+
+statusElement.className =
+  status === 'Pago' ? 'status-paid' :
+  status === 'Parcial' ? 'status-partial' :
+  'status-pending';
 }
   function addPayment(initial=false,p=null){
 
