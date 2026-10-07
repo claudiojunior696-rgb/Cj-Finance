@@ -1323,7 +1323,7 @@ function updateModalSummary(){
   const payments = [...document.querySelectorAll('#payments .payment')];
 
   const received = payments.reduce((sum,row)=>{
-    const input = row.querySelector('.paymentAmount');
+    const input = row.querySelector('input[type="number"]');
     return sum + Number(input?.value || 0);
   },0);
 
