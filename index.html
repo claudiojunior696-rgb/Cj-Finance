@@ -1316,7 +1316,37 @@ function closeModal(){
 }
 
 
-function addPayment(initial=false,p=null){
+function updateModalSummary(){
+
+  const total = Number(document.getElementById('value').value || 0);
+
+  const payments = [...document.querySelectorAll('#payments .payment')];
+
+  const received = payments.reduce((sum,row)=>{
+    const input = row.querySelector('.paymentAmount');
+    return sum + Number(input?.value || 0);
+  },0);
+
+  const remaining = Math.max(total - received,0);
+
+  document.getElementById('modalReceived').textContent =
+    received.toLocaleString('pt-BR',{
+      style:'currency',
+      currency:'BRL'
+    });
+
+  document.getElementById('modalRemaining').textContent =
+    remaining.toLocaleString('pt-BR',{
+      style:'currency',
+      currency:'BRL'
+    });
+
+  document.getElementById('modalStatus').textContent =
+    received >= total && total > 0 ? 'Pago' :
+    received > 0 ? 'Parcial' :
+    'Pendente';
+}
+  function addPayment(initial=false,p=null){
 
   const box=document.getElementById('payments');
 
@@ -1361,13 +1391,14 @@ function addPayment(initial=false,p=null){
       type="button"
       class="secondary"
       style="margin-left:8px"
-      onclick="this.parentElement.remove()"
+      onclick="this.parentElement.remove();updateModalSummary()"
     >
       ✕
     </button>
   `;
 
   box.appendChild(row);
+    updateModalSummary();
 }
 
 
