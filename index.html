@@ -4,134 +4,1161 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Claudio Finance — Eventos & Recebimentos</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{--bg:#f5f6f8;--card:#fff;--text:#17191d;--muted:#70757d;--accent:#111;--green:#16834b;--yellow:#b77900;--red:#c0392b;--border:#e7e8eb}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
-.container{max-width:1150px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px}
-.brand h1{margin:0;font-size:25px}.brand p{margin:4px 0;color:var(--muted);font-size:14px}
-button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer}.primary{background:#111;color:#fff}.secondary{background:#eef0f2;color:#111}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}.stat{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:18px}.stat span{font-size:13px;color:var(--muted)}.stat strong{display:block;font-size:24px;margin-top:8px}
-.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:18px}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}.toolbar input,.toolbar select{flex:1;min-width:180px}
-input,select{width:100%;padding:11px 12px;border:1px solid #d9dce1;border-radius:10px;background:#fff;font:inherit}
-table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:13px 9px;border-bottom:1px solid var(--border);font-size:14px}th{color:var(--muted);font-size:12px;text-transform:uppercase}
-.badge{display:inline-block;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:800}.paid{background:#e4f6ed;color:var(--green)}.partial{background:#fff2d4;color:var(--yellow)}.pending{background:#fde9e7;color:var(--red)}.cancel{background:#eee;color:#666}
+:root{
+  --bg:#f5f6f8;--card:#fff;--text:#17191d;--muted:#70757d;
+  --accent:#111;--green:#16834b;--yellow:#b77900;--red:#c0392b;
+  --border:#e7e8eb;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg);color:var(--text)
+}
+button{
+  border:0;border-radius:10px;padding:11px 15px;font-weight:700;
+  cursor:pointer
+}
+.primary{background:#111;color:#fff}
+.secondary{background:#eef0f2;color:#111}
+input,select{
+  width:100%;padding:11px 12px;border:1px solid #d9dce1;
+  border-radius:10px;background:#fff;font:inherit
+}
+
+/* LOGIN */
+.auth-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:20px
+}
+.auth-box{
+  width:min(420px,100%);background:#fff;border:1px solid var(--border);
+  border-radius:20px;padding:28px;box-shadow:0 10px 35px #0000000d
+}
+.auth-logo{text-align:center;margin-bottom:25px}
+.auth-logo h1{margin:0;font-size:28px}
+.auth-logo p{margin:6px 0;color:var(--muted)}
+.auth-field{margin-bottom:14px}
+.auth-field label{
+  display:block;font-size:13px;font-weight:700;margin-bottom:6px
+}
+.auth-buttons{display:grid;gap:10px;margin-top:18px}
+.auth-message{
+  margin-top:15px;padding:11px;border-radius:10px;
+  font-size:13px;display:none
+}
+.auth-message.error{display:block;background:#fde9e7;color:#a93226}
+.auth-message.success{display:block;background:#e4f6ed;color:#126b3d}
+
+/* APP */
+#app{display:none}
+.container{max-width:1150px;margin:auto;padding:22px}
+.top{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:15px;margin-bottom:22px
+}
+.brand h1{margin:0;font-size:25px}
+.brand p{margin:4px 0;color:var(--muted);font-size:14px}
+.user-area{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end
+}
+.user-email{font-size:12px;color:var(--muted)}
+.stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:14px;margin-bottom:20px
+}
+.stat{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:15px;padding:18px
+}
+.stat span{font-size:13px;color:var(--muted)}
+.stat strong{display:block;font-size:24px;margin-top:8px}
+.card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:16px;padding:18px;margin-bottom:18px
+}
+.toolbar{
+  display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px
+}
+.toolbar input,.toolbar select{flex:1;min-width:180px}
+table{width:100%;border-collapse:collapse}
+th,td{
+  text-align:left;padding:13px 9px;
+  border-bottom:1px solid var(--border);font-size:14px
+}
+th{color:var(--muted);font-size:12px;text-transform:uppercase}
+.badge{
+  display:inline-block;padding:5px 8px;border-radius:999px;
+  font-size:12px;font-weight:800
+}
+.paid{background:#e4f6ed;color:var(--green)}
+.partial{background:#fff2d4;color:var(--yellow)}
+.pending{background:#fde9e7;color:var(--red)}
+.cancel{background:#eee;color:#666}
 .actions button{padding:7px 9px;font-size:12px;margin-right:4px}
 .empty{text-align:center;padding:35px;color:var(--muted)}
-.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:15px;z-index:10}.modal.open{display:flex}.modalbox{background:#fff;border-radius:18px;padding:22px;width:min(620px,100%);max-height:90vh;overflow:auto}.modalhead{display:flex;justify-content:space-between;align-items:center}.modalhead h2{margin:0 0 18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.field label{font-size:12px;font-weight:700;color:#555;display:block;margin:0 0 5px}.full{grid-column:1/-1}.formactions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
-.payment-list{margin-top:12px;border-top:1px solid var(--border)}.payment{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
-@media(max-width:800px){.stats{grid-template-columns:1fr 1fr}table{min-width:850px}.tablewrap{overflow:auto}.grid{grid-template-columns:1fr}.full{grid-column:auto}.top{align-items:flex-start}.top button{white-space:nowrap}}
+.loading{text-align:center;padding:40px;color:var(--muted)}
+
+.modal{
+  position:fixed;inset:0;background:#0008;display:none;
+  align-items:center;justify-content:center;padding:15px;z-index:10
+}
+.modal.open{display:flex}
+.modalbox{
+  background:#fff;border-radius:18px;padding:22px;width:min(620px,100%);
+  max-height:90vh;overflow:auto
+}
+.modalhead{
+  display:flex;justify-content:space-between;align-items:center
+}
+.modalhead h2{margin:0 0 18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.field label{
+  font-size:12px;font-weight:700;color:#555;
+  display:block;margin:0 0 5px
+}
+.full{grid-column:1/-1}
+.formactions{
+  display:flex;justify-content:flex-end;gap:9px;margin-top:18px
+}
+.payment-list{margin-top:12px;border-top:1px solid var(--border)}
+.payment{
+  display:flex;justify-content:space-between;padding:10px 0;
+  border-bottom:1px solid var(--border);font-size:13px
+}
+
+@media(max-width:800px){
+  .stats{grid-template-columns:1fr 1fr}
+  table{min-width:850px}
+  .tablewrap{overflow:auto}
+  .grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .top{align-items:flex-start;flex-direction:column}
+  .user-area{justify-content:flex-start}
+}
 </style>
 </head>
+
 <body>
+
+<!-- LOGIN / CADASTRO -->
+<div id="authScreen" class="auth-screen">
+  <div class="auth-box">
+
+    <div class="auth-logo">
+      <h1>Claudio Finance</h1>
+      <p>Controle de eventos e recebimentos</p>
+    </div>
+
+    <form id="authForm">
+      <div class="auth-field">
+        <label>E-mail</label>
+        <input id="authEmail" type="email" required placeholder="seu@email.com">
+      </div>
+
+      <div class="auth-field">
+        <label>Senha</label>
+        <input id="authPassword" type="password" required minlength="6" placeholder="Mínimo 6 caracteres">
+      </div>
+
+      <div class="auth-buttons">
+        <button type="submit" class="primary" id="loginButton">
+          Entrar
+        </button>
+
+        <button type="button" class="secondary" id="signupButton">
+          Criar minha conta
+        </button>
+      </div>
+    </form>
+
+    <div id="authMessage" class="auth-message"></div>
+
+  </div>
+</div>
+
+
+<!-- APLICAÇÃO -->
+<div id="app">
+
 <div class="container">
+
   <div class="top">
-    <div class="brand"><h1>Claudio Finance</h1><p>Controle de eventos e recebimentos</p></div>
-    <button class="primary" onclick="openNew()">+ Novo evento</button>
+
+    <div class="brand">
+      <h1>Claudio Finance</h1>
+      <p>Controle de eventos e recebimentos</p>
+    </div>
+
+    <div class="user-area">
+      <span id="userEmail" class="user-email"></span>
+      <button class="secondary" onclick="signOut()">Sair</button>
+      <button class="primary" onclick="openNew()">+ Novo evento</button>
+    </div>
+
   </div>
 
   <div class="stats">
-    <div class="stat"><span>Contratado</span><strong id="total">R$ 0,00</strong></div>
-    <div class="stat"><span>Já recebido</span><strong id="received">R$ 0,00</strong></div>
-    <div class="stat"><span>A receber</span><strong id="pending">R$ 0,00</strong></div>
-    <div class="stat"><span>Eventos futuros</span><strong id="future">0</strong></div>
+
+    <div class="stat">
+      <span>Contratado</span>
+      <strong id="total">R$ 0,00</strong>
+    </div>
+
+    <div class="stat">
+      <span>Já recebido</span>
+      <strong id="received">R$ 0,00</strong>
+    </div>
+
+    <div class="stat">
+      <span>A receber</span>
+      <strong id="pending">R$ 0,00</strong>
+    </div>
+
+    <div class="stat">
+      <span>Eventos futuros</span>
+      <strong id="future">0</strong>
+    </div>
+
   </div>
 
   <div class="card">
+
     <div class="toolbar">
-      <input id="search" placeholder="🔎 Buscar cliente ou serviço..." oninput="render()">
+
+      <input
+        id="search"
+        placeholder="🔎 Buscar cliente ou serviço..."
+        oninput="render()"
+      >
+
       <select id="filter" onchange="render()">
         <option value="all">Todos os status</option>
-        <option value="paid">Pago</option><option value="partial">Parcial</option>
-        <option value="pending">Pendente</option><option value="cancel">Cancelado</option>
+        <option value="paid">Pago</option>
+        <option value="partial">Parcial</option>
+        <option value="pending">Pendente</option>
+        <option value="cancel">Cancelado</option>
       </select>
-      <button class="secondary" onclick="exportCSV()">Exportar CSV</button>
+
+      <button class="secondary" onclick="exportCSV()">
+        Exportar CSV
+      </button>
+
     </div>
+
     <div class="tablewrap">
-      <table><thead><tr><th>Evento</th><th>Data</th><th>Serviço</th><th>Valor</th><th>Recebido</th><th>Restante</th><th>Status</th><th></th></tr></thead>
-      <tbody id="rows"></tbody></table>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Evento</th>
+            <th>Data</th>
+            <th>Serviço</th>
+            <th>Valor</th>
+            <th>Recebido</th>
+            <th>Restante</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+
+        <tbody id="rows">
+          <tr>
+            <td colspan="8" class="loading">
+              Carregando eventos...
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+
     </div>
+
   </div>
+
+</div>
 </div>
 
+
+<!-- MODAL EVENTO -->
 <div class="modal" id="modal">
-<div class="modalbox">
-  <div class="modalhead"><h2 id="modalTitle">Novo evento</h2><button class="secondary" onclick="closeModal()">✕</button></div>
-  <form id="form" onsubmit="saveEvent(event)">
-    <input type="hidden" id="id">
-    <div class="grid">
-      <div class="field"><label>Cliente</label><input id="client" required placeholder="Nome do cliente"></div>
-      <div class="field"><label>WhatsApp</label><input id="phone" placeholder="(53) 99999-9999"></div>
-      <div class="field"><label>Data do evento</label><input id="date" type="date" required></div>
-      <div class="field"><label>Serviço</label><select id="service"><option>Plataforma 360</option><option>Totem Fotográfico</option><option>Plataforma 360 + Totem</option><option>Tchê Diversões</option><option>Outro</option></select></div>
-      <div class="field"><label>Valor total (R$)</label><input id="value" type="number" min="0" step="0.01" required></div>
-      <div class="field"><label>Observação</label><input id="note" placeholder="Ex.: festa de 15 anos"></div>
-      <div class="full"><label style="font-size:12px;font-weight:700;color:#555">Pagamentos</label><div id="payments" class="payment-list"></div><button type="button" class="secondary" style="margin-top:10px" onclick="addPayment()">+ Registrar pagamento</button></div>
+
+  <div class="modalbox">
+
+    <div class="modalhead">
+      <h2 id="modalTitle">Novo evento</h2>
+      <button class="secondary" onclick="closeModal()">✕</button>
     </div>
-    <div class="formactions"><button type="button" class="secondary" onclick="closeModal()">Cancelar</button><button class="primary">Salvar evento</button></div>
-  </form>
+
+    <form id="form" onsubmit="saveEvent(event)">
+
+      <input type="hidden" id="id">
+
+      <div class="grid">
+
+        <div class="field">
+          <label>Cliente</label>
+          <input id="client" required placeholder="Nome do cliente">
+        </div>
+
+        <div class="field">
+          <label>WhatsApp</label>
+          <input id="phone" placeholder="(53) 99999-9999">
+        </div>
+
+        <div class="field">
+          <label>Data do evento</label>
+          <input id="date" type="date" required>
+        </div>
+
+        <div class="field">
+          <label>Serviço</label>
+          <select id="service">
+            <option>Plataforma 360</option>
+            <option>Totem Fotográfico</option>
+            <option>Plataforma 360 + Totem</option>
+            <option>Tchê Diversões</option>
+            <option>Outro</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Valor total (R$)</label>
+          <input id="value" type="number" min="0" step="0.01" required>
+        </div>
+
+        <div class="field">
+          <label>Observação</label>
+          <input id="note" placeholder="Ex.: festa de 15 anos">
+        </div>
+
+        <div class="full">
+
+          <label style="font-size:12px;font-weight:700;color:#555">
+            Pagamentos
+          </label>
+
+          <div id="payments" class="payment-list"></div>
+
+          <button
+            type="button"
+            class="secondary"
+            style="margin-top:10px"
+            onclick="addPayment()"
+          >
+            + Registrar pagamento
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="formactions">
+
+        <button
+          type="button"
+          class="secondary"
+          onclick="closeModal()"
+        >
+          Cancelar
+        </button>
+
+        <button class="primary">
+          Salvar evento
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
 </div>
-</div>
+
 
 <script>
-let events = JSON.parse(localStorage.getItem('claudio_finance_events')||'[]');
-let editing=null;
 
-const money=v=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v||0);
-const key='claudio_finance_events';
-function persist(){localStorage.setItem(key,JSON.stringify(events));}
+const SUPABASE_URL =
+  'https://hhsbobtxeaixhogpglab.supabase.co';
+
+const SUPABASE_PUBLISHABLE_KEY =
+  'sb_publishable_wCxU6MTMrbx5kSa20w3RQw_uvMJ5bxi';
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+
+let events = [];
+let editing = null;
+
+const money = v =>
+  new Intl.NumberFormat('pt-BR',{
+    style:'currency',
+    currency:'BRL'
+  }).format(v || 0);
+
+
+/* =========================
+   AUTENTICAÇÃO
+========================= */
+
+function showAuthMessage(message,type='error'){
+  const box=document.getElementById('authMessage');
+  box.textContent=message;
+  box.className='auth-message '+type;
+}
+
+async function login(){
+
+  const email=document.getElementById('authEmail').value.trim();
+  const password=document.getElementById('authPassword').value;
+
+  showAuthMessage('Entrando...','success');
+
+  const {error}=await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    showAuthMessage(error.message,'error');
+  }
+}
+
+async function signup(){
+
+  const email=document.getElementById('authEmail').value.trim();
+  const password=document.getElementById('authPassword').value;
+
+  showAuthMessage('Criando sua conta...','success');
+
+  const {data,error}=await supabaseClient.auth.signUp({
+    email,
+    password
+  });
+
+  if(error){
+    showAuthMessage(error.message,'error');
+    return;
+  }
+
+  if(data.session){
+    showAuthMessage('Conta criada com sucesso!','success');
+  }else{
+    showAuthMessage(
+      'Conta criada! Verifique seu e-mail para confirmar a conta.',
+      'success'
+    );
+  }
+}
+
+async function signOut(){
+
+  await supabaseClient.auth.signOut();
+
+  events=[];
+  render();
+
+  document.getElementById('app').style.display='none';
+  document.getElementById('authScreen').style.display='flex';
+}
+
+async function handleSession(session){
+
+  if(session){
+
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+
+    document.getElementById('userEmail').textContent =
+      session.user.email || '';
+
+    await loadEvents();
+
+  }else{
+
+    document.getElementById('authScreen').style.display='flex';
+    document.getElementById('app').style.display='none';
+
+  }
+}
+
+
+/* =========================
+   EVENTOS
+========================= */
+
+async function loadEvents(){
+
+  document.getElementById('rows').innerHTML =
+    '<tr><td colspan="8" class="loading">Carregando eventos...</td></tr>';
+
+  const {data,error}=await supabaseClient
+    .from('events')
+    .select('*, payments(*)')
+    .order('event_date',{ascending:true});
+
+  if(error){
+
+    console.error(error);
+
+    document.getElementById('rows').innerHTML =
+      `<tr><td colspan="8" class="empty">
+        Erro ao carregar eventos.
+      </td></tr>`;
+
+    alert('Erro ao carregar os eventos: '+error.message);
+    return;
+  }
+
+  events=(data || []).map(e=>({
+
+    id:e.id,
+    client:e.client || '',
+    phone:e.phone || '',
+    date:e.event_date,
+    service:e.service || '',
+    value:Number(e.value || 0),
+    note:e.note || '',
+    cancelled:Boolean(e.cancelled),
+
+    payments:(e.payments || []).map(p=>({
+      id:p.id,
+      date:p.payment_date,
+      amount:Number(p.amount || 0)
+    }))
+
+  }));
+
+  render();
+}
+
+
 function status(e){
- if(e.cancelled)return ['cancel','Cancelado'];
- let r=e.payments.reduce((a,p)=>a+Number(p.amount||0),0);
- if(r>=Number(e.value))return ['paid','Pago'];
- if(r>0)return ['partial','Parcial'];
- return ['pending','Pendente'];
+
+  if(e.cancelled)
+    return ['cancel','Cancelado'];
+
+  const received=e.payments.reduce(
+    (a,p)=>a+Number(p.amount || 0),0
+  );
+
+  if(received>=Number(e.value))
+    return ['paid','Pago'];
+
+  if(received>0)
+    return ['partial','Parcial'];
+
+  return ['pending','Pendente'];
 }
+
+
 function openNew(){
- editing=null; document.getElementById('form').reset(); document.getElementById('id').value='';
- document.getElementById('modalTitle').textContent='Novo evento'; document.getElementById('payments').innerHTML='';
- document.getElementById('date').value=new Date().toISOString().slice(0,10); addPayment(true); document.getElementById('modal').classList.add('open');
+
+  editing=null;
+
+  document.getElementById('form').reset();
+  document.getElementById('id').value='';
+
+  document.getElementById('modalTitle').textContent =
+    'Novo evento';
+
+  document.getElementById('payments').innerHTML='';
+
+  document.getElementById('date').value =
+    new Date().toISOString().slice(0,10);
+
+  addPayment();
+
+  document.getElementById('modal')
+    .classList.add('open');
 }
+
+
 function editEvent(id){
- let e=events.find(x=>x.id===id); if(!e)return; editing=e;
- for(const [k,v] of [['id',e.id],['client',e.client],['phone',e.phone],['date',e.date],['value',e.value],['note',e.note]])document.getElementById(k).value=v||'';
- document.getElementById('service').value=e.service; document.getElementById('modalTitle').textContent='Editar evento';
- document.getElementById('payments').innerHTML=''; e.payments.forEach(p=>addPayment(false,p));
- document.getElementById('modal').classList.add('open');
+
+  const e=events.find(x=>x.id===id);
+
+  if(!e)return;
+
+  editing=e;
+
+  document.getElementById('id').value=e.id;
+  document.getElementById('client').value=e.client;
+  document.getElementById('phone').value=e.phone;
+  document.getElementById('date').value=e.date;
+  document.getElementById('value').value=e.value;
+  document.getElementById('note').value=e.note;
+
+  document.getElementById('service').value=e.service;
+
+  document.getElementById('modalTitle').textContent =
+    'Editar evento';
+
+  document.getElementById('payments').innerHTML='';
+
+  e.payments.forEach(p=>addPayment(false,p));
+
+  document.getElementById('modal')
+    .classList.add('open');
 }
-function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+
+function closeModal(){
+
+  document.getElementById('modal')
+    .classList.remove('open');
+
+}
+
+
 function addPayment(initial=false,p=null){
- const box=document.getElementById('payments'); const row=document.createElement('div'); row.className='payment';
- row.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1"><input class="paydate" type="date" value="${p?.date||new Date().toISOString().slice(0,10)}"><input class="payamount" type="number" min="0" step="0.01" placeholder="Valor" value="${p?.amount||''}"></div><button type="button" class="secondary" style="margin-left:8px" onclick="this.parentElement.remove()">✕</button>`;
- box.appendChild(row);
+
+  const box=document.getElementById('payments');
+
+  const row=document.createElement('div');
+
+  row.className='payment';
+
+  const paymentDate =
+    p?.date ||
+    new Date().toISOString().slice(0,10);
+
+  const paymentAmount =
+    p?.amount || '';
+
+  row.innerHTML=`
+
+    <div style="
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      flex:1
+    ">
+
+      <input
+        class="paydate"
+        type="date"
+        value="${paymentDate}"
+      >
+
+      <input
+        class="payamount"
+        type="number"
+        min="0"
+        step="0.01"
+        placeholder="Valor"
+        value="${paymentAmount}"
+      >
+
+    </div>
+
+    <button
+      type="button"
+      class="secondary"
+      style="margin-left:8px"
+      onclick="this.parentElement.remove()"
+    >
+      ✕
+    </button>
+  `;
+
+  box.appendChild(row);
 }
-function saveEvent(ev){
- ev.preventDefault();
- const rows=[...document.querySelectorAll('#payments .payment')];
- const payments=rows.map(r=>({date:r.querySelector('.paydate').value,amount:Number(r.querySelector('.payamount').value||0)})).filter(p=>p.amount>0);
- const data={id:editing?.id||crypto.randomUUID(),client:client.value.trim(),phone:phone.value.trim(),date:date.value,service:service.value,value:Number(document.getElementById('value').value),note:note.value.trim(),payments,cancelled:false};
- if(editing){const i=events.findIndex(x=>x.id===editing.id);events[i]=data}else events.push(data);
- persist();closeModal();render();
+
+
+/* =========================
+   SALVAR EVENTO
+========================= */
+
+async function saveEvent(ev){
+
+  ev.preventDefault();
+
+  const {data:{user}} =
+    await supabaseClient.auth.getUser();
+
+  if(!user){
+    alert('Sua sessão expirou. Faça login novamente.');
+    return;
+  }
+
+  const paymentRows=[
+    ...document.querySelectorAll('#payments .payment')
+  ];
+
+  const payments=paymentRows
+    .map(r=>({
+      date:r.querySelector('.paydate').value,
+      amount:Number(
+        r.querySelector('.payamount').value || 0
+      )
+    }))
+    .filter(p=>p.amount>0 && p.date);
+
+
+  const eventData={
+
+    client:document.getElementById('client')
+      .value.trim(),
+
+    phone:document.getElementById('phone')
+      .value.trim(),
+
+    event_date:document.getElementById('date')
+      .value,
+
+    service:document.getElementById('service')
+      .value,
+
+    value:Number(
+      document.getElementById('value').value || 0
+    ),
+
+    note:document.getElementById('note')
+      .value.trim(),
+
+    cancelled:editing?.cancelled || false
+
+  };
+
+
+  let eventId;
+
+
+  /* NOVO EVENTO */
+
+  if(!editing){
+
+    const {data,error}=await supabaseClient
+      .from('events')
+      .insert({
+        ...eventData,
+        user_id:user.id
+      })
+      .select()
+      .single();
+
+    if(error){
+
+      console.error(error);
+      alert('Erro ao salvar evento: '+error.message);
+      return;
+
+    }
+
+    eventId=data.id;
+
+  }
+
+
+  /* EDITAR EVENTO */
+
+  else{
+
+    const {data,error}=await supabaseClient
+      .from('events')
+      .update(eventData)
+      .eq('id',editing.id)
+      .select()
+      .single();
+
+    if(error){
+
+      console.error(error);
+      alert('Erro ao atualizar evento: '+error.message);
+      return;
+
+    }
+
+    eventId=data.id;
+
+
+    const {error:deleteError}=
+      await supabaseClient
+        .from('payments')
+        .delete()
+        .eq('event_id',eventId);
+
+    if(deleteError){
+
+      console.error(deleteError);
+      alert('Erro ao atualizar os pagamentos: '+deleteError.message);
+      return;
+
+    }
+
+  }
+
+
+  /* SALVAR PAGAMENTOS */
+
+  if(payments.length){
+
+    const paymentData=payments.map(p=>({
+
+      event_id:eventId,
+      user_id:user.id,
+      payment_date:p.date,
+      amount:p.amount
+
+    }));
+
+    const {error}=await supabaseClient
+      .from('payments')
+      .insert(paymentData);
+
+    if(error){
+
+      console.error(error);
+      alert('Evento salvo, mas houve erro nos pagamentos: '+error.message);
+
+    }
+
+  }
+
+
+  closeModal();
+
+  await loadEvents();
+
 }
-function removeEvent(id){if(confirm('Excluir este evento?')){events=events.filter(e=>e.id!==id);persist();render()}}
+
+
+/* =========================
+   EXCLUIR
+========================= */
+
+async function removeEvent(id){
+
+  if(!confirm('Excluir este evento?'))
+    return;
+
+  const {error}=await supabaseClient
+    .from('events')
+    .delete()
+    .eq('id',id);
+
+  if(error){
+
+    console.error(error);
+    alert('Erro ao excluir evento: '+error.message);
+    return;
+
+  }
+
+  await loadEvents();
+
+}
+
+
+/* =========================
+   RENDER
+========================= */
+
 function render(){
- const q=search.value.toLowerCase(), f=filter.value;
- const filtered=events.filter(e=>(e.client+' '+e.service).toLowerCase().includes(q)).filter(e=>f==='all'||status(e)[0]===f).sort((a,b)=>a.date.localeCompare(b.date));
- rows.innerHTML=filtered.length?filtered.map(e=>{
-   const received=e.payments.reduce((a,p)=>a+Number(p.amount||0),0), rem=Math.max(0,e.value-received), [cls,label]=status(e);
-   return `<tr><td><b>${esc(e.client)}</b><br><small style="color:#777">${esc(e.note||'')}</small></td><td>${new Date(e.date+'T12:00:00').toLocaleDateString('pt-BR')}</td><td>${esc(e.service)}</td><td>${money(e.value)}</td><td>${money(received)}</td><td><b>${money(rem)}</b></td><td><span class="badge ${cls}">${label}</span></td><td class="actions"><button class="secondary" onclick="editEvent('${e.id}')">Editar</button><button class="secondary" onclick="removeEvent('${e.id}')">Excluir</button></td></tr>`
- }).join(''):`<tr><td colspan="8" class="empty">Nenhum evento cadastrado ainda.</td></tr>`;
- let total=0,rec=0,fut=0,today=new Date().toISOString().slice(0,10);
- events.forEach(e=>{if(!e.cancelled){total+=e.value;rec+=e.payments.reduce((a,p)=>a+Number(p.amount||0),0);if(e.date>=today)fut++}});
- document.getElementById('total').textContent=money(total);document.getElementById('received').textContent=money(rec);document.getElementById('pending').textContent=money(Math.max(0,total-rec));document.getElementById('future').textContent=fut;
+
+  const q=
+    document.getElementById('search')
+      .value.toLowerCase();
+
+  const f=
+    document.getElementById('filter').value;
+
+
+  const filtered=events
+
+    .filter(e=>
+      (e.client+' '+e.service+' '+e.note)
+        .toLowerCase()
+        .includes(q)
+    )
+
+    .filter(e=>
+      f==='all' ||
+      status(e)[0]===f
+    )
+
+    .sort((a,b)=>
+      a.date.localeCompare(b.date)
+    );
+
+
+  const rowsBox=document.getElementById('rows');
+
+
+  rowsBox.innerHTML=
+
+    filtered.length ?
+
+    filtered.map(e=>{
+
+      const received=e.payments.reduce(
+        (a,p)=>a+Number(p.amount || 0),0
+      );
+
+      const rem=Math.max(
+        0,
+        e.value-received
+      );
+
+      const [cls,label]=status(e);
+
+
+      return `
+
+      <tr>
+
+        <td>
+          <b>${esc(e.client)}</b>
+          <br>
+          <small style="color:#777">
+            ${esc(e.note || '')}
+          </small>
+        </td>
+
+        <td>
+          ${new Date(
+            e.date+'T12:00:00'
+          ).toLocaleDateString('pt-BR')}
+        </td>
+
+        <td>${esc(e.service)}</td>
+
+        <td>${money(e.value)}</td>
+
+        <td>${money(received)}</td>
+
+        <td><b>${money(rem)}</b></td>
+
+        <td>
+          <span class="badge ${cls}">
+            ${label}
+          </span>
+        </td>
+
+        <td class="actions">
+
+          <button
+            class="secondary"
+            onclick="editEvent('${e.id}')"
+          >
+            Editar
+          </button>
+
+          <button
+            class="secondary"
+            onclick="removeEvent('${e.id}')"
+          >
+            Excluir
+          </button>
+
+        </td>
+
+      </tr>
+
+      `;
+
+    }).join('')
+
+    :
+
+    `<tr>
+      <td colspan="8" class="empty">
+        Nenhum evento cadastrado ainda.
+      </td>
+    </tr>`;
+
+
+  let total=0;
+  let rec=0;
+  let fut=0;
+
+  const today=
+    new Date().toISOString().slice(0,10);
+
+
+  events.forEach(e=>{
+
+    if(!e.cancelled){
+
+      total+=Number(e.value || 0);
+
+      rec+=e.payments.reduce(
+        (a,p)=>a+Number(p.amount || 0),0
+      );
+
+      if(e.date>=today)
+        fut++;
+
+    }
+
+  });
+
+
+  document.getElementById('total')
+    .textContent=money(total);
+
+  document.getElementById('received')
+    .textContent=money(rec);
+
+  document.getElementById('pending')
+    .textContent=money(
+      Math.max(0,total-rec)
+    );
+
+  document.getElementById('future')
+    .textContent=fut;
+
 }
-function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+
+
+/* =========================
+   SEGURANÇA HTML
+========================= */
+
+function esc(s){
+
+  return String(s).replace(
+    /[&<>"']/g,
+    m=>({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#039;'
+    }[m])
+  );
+
+}
+
+
+/* =========================
+   EXPORTAR CSV
+========================= */
+
 function exportCSV(){
- const head=['Cliente','WhatsApp','Data','Serviço','Valor Total','Recebido','Restante','Status','Observação'];
- const lines=events.map(e=>{let r=e.payments.reduce((a,p)=>a+Number(p.amount||0),0);return [e.client,e.phone,e.date,e.service,e.value,r,Math.max(0,e.value-r),status(e)[1],e.note].map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(',')});
- const blob=new Blob(['\ufeff'+[head.join(','),...lines].join('\n')],{type:'text/csv;charset=utf-8'});
- const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='eventos-recebimentos.csv';a.click();
+
+  const head=[
+    'Cliente',
+    'WhatsApp',
+    'Data',
+    'Serviço',
+    'Valor Total',
+    'Recebido',
+    'Restante',
+    'Status',
+    'Observação'
+  ];
+
+
+  const lines=events.map(e=>{
+
+    const r=e.payments.reduce(
+      (a,p)=>a+Number(p.amount || 0),0
+    );
+
+    return [
+
+      e.client,
+      e.phone,
+      e.date,
+      e.service,
+      e.value,
+      r,
+      Math.max(0,e.value-r),
+      status(e)[1],
+      e.note
+
+    ]
+    .map(v=>
+      `"${String(v ?? '').replaceAll('"','""')}"`
+    )
+    .join(',');
+
+  });
+
+
+  const blob=new Blob(
+
+    [
+      '\ufeff'+
+      [head.join(','),...lines].join('\n')
+    ],
+
+    {
+      type:'text/csv;charset=utf-8'
+    }
+
+  );
+
+
+  const a=document.createElement('a');
+
+  a.href=URL.createObjectURL(blob);
+
+  a.download='eventos-recebimentos.csv';
+
+  a.click();
+
 }
-render();
+
+
+/* =========================
+   BOTÕES DE LOGIN
+========================= */
+
+document.getElementById('authForm')
+  .addEventListener('submit',async e=>{
+
+    e.preventDefault();
+
+    await login();
+
+  });
+
+
+document.getElementById('signupButton')
+  .addEventListener('click',async()=>{
+
+    await signup();
+
+  });
+
+
+/* =========================
+   INICIALIZAÇÃO
+========================= */
+
+supabaseClient.auth.onAuthStateChange(
+  (_event,session)=>{
+
+    setTimeout(()=>{
+      handleSession(session);
+    },0);
+
+  }
+);
+
+
+(async()=>{
+
+  const {
+    data:{session}
+  }=await supabaseClient.auth.getSession();
+
+  await handleSession(session);
+
+})();
+
 </script>
+
 </body>
 </html>
