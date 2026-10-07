@@ -787,6 +787,47 @@ tbody tr:hover{
   display:flex;
   width:100%;
   box-sizing:border-box;
+}/* RESUMO DE RECEBIMENTOS */
+
+.payment-summary{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:16px;
+}
+
+.summary-item{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+
+.summary-item span{
+  font-size:12px;
+  color:#64748b;
+  font-weight:600;
+}
+
+.summary-item strong{
+  font-size:17px;
+  color:#0f172a;
+}
+
+@media(max-width:600px){
+
+  .payment-summary{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
+  .summary-item{
+    padding:12px 14px;
+  }
+
 }
 </style>
 </head>
