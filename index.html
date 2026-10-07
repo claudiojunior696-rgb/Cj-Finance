@@ -1362,19 +1362,36 @@ function updateModalSummary(){
     p?.amount || '';
 
   row.innerHTML=`
+  <div style="
+    display:grid;
+    grid-template-columns:1fr 1fr auto;
+    gap:10px;
+    align-items:end;
+    width:100%;
+  ">
 
-    <div style="
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-      flex:1
-    ">
+    <div>
+      <label style="
+        display:block;
+        font-size:12px;
+        font-weight:600;
+        margin-bottom:5px;
+      ">Data</label>
 
       <input
         class="paydate"
         type="date"
         value="${paymentDate}"
       >
+    </div>
+
+    <div>
+      <label style="
+        display:block;
+        font-size:12px;
+        font-weight:600;
+        margin-bottom:5px;
+      ">Valor recebido</label>
 
       <input
         class="payamount"
@@ -1384,18 +1401,20 @@ function updateModalSummary(){
         placeholder="Valor"
         value="${paymentAmount}"
       >
-
     </div>
 
     <button
       type="button"
       class="secondary"
-      style="margin-left:8px"
-      onclick="this.parentElement.remove();updateModalSummary()"
+      style="margin-left:4px;"
+      onclick="this.parentElement.parentElement.remove();updateModalSummary()"
+      title="Excluir recebimento"
     >
-      ✕
+      ×
     </button>
-  `;
+
+  </div>
+`;
 
   box.appendChild(row);
 
