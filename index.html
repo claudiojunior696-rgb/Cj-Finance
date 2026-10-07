@@ -1398,8 +1398,12 @@ function updateModalSummary(){
   `;
 
   box.appendChild(row);
-    
-    updateModalSummary();
+
+row.querySelector('.paymentAmount')
+  .addEventListener('input',updateModalSummary);
+
+updateModalSummary();
+}
 }
 
 
