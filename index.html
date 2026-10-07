@@ -1023,7 +1023,25 @@ tbody tr:hover{
 
 </div>
 
-      <div class="formactions">
+<div class="payment-summary">
+
+  <div class="summary-item">
+    <span>Total recebido</span>
+    <strong id="modalReceived">R$ 0,00</strong>
+  </div>
+
+  <div class="summary-item">
+    <span>A receber</span>
+    <strong id="modalRemaining">R$ 0,00</strong>
+  </div>
+
+  <div class="summary-item">
+    <span>Status</span>
+    <strong id="modalStatus">Pendente</strong>
+  </div>
+
+</div>
+        <div class="formactions">
 
         <button
           type="button"
@@ -1270,6 +1288,19 @@ function editEvent(id){
 
   document.getElementById('payments').innerHTML='';
 
+const received = e.payments.reduce((total,p)=>total + Number(p.amount || 0),0);
+const remaining = Math.max(Number(e.value || 0) - received,0);
+
+document.getElementById('modalReceived').textContent =
+  received.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+document.getElementById('modalRemaining').textContent =
+  remaining.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+
+document.getElementById('modalStatus').textContent =
+  received >= Number(e.value || 0) ? 'Pago' :
+  received > 0 ? 'Parcial' :
+  'Pendente';
   e.payments.forEach(p=>addPayment(false,p));
 
   document.getElementById('modal')
