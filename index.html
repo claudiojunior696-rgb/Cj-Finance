@@ -6,6 +6,7 @@
 <title>CJ Finance — Eventos & Recebimentos</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root{
@@ -871,6 +872,38 @@ tbody tr:hover{
   padding:4px 9px;
   border-radius:8px;
 }
+  .chart-card{
+  margin-bottom:20px;
+}
+
+.chart-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+}
+
+.chart-header h3{
+  margin:0;
+  font-size:18px;
+}
+
+.chart-header p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.chart-wrap{
+  width:100%;
+  height:300px;
+  position:relative;
+}
+
+#financeChart{
+  width:100%;
+  height:100%;
+}
 </style>
 </head>
 
@@ -957,6 +990,20 @@ tbody tr:hover{
 
   </div>
 
+<div class="card chart-card">
+
+  <div class="chart-header">
+    <div>
+      <h3>Desempenho financeiro</h3>
+      <p>Faturamento e recebimentos por mês</p>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="financeChart"></canvas>
+  </div>
+
+</div> 
   <div class="card">
 
     <div class="toolbar">
@@ -1914,6 +1961,7 @@ function setPeriod(type){
 
   document.getElementById('future')
     .textContent=fut;
+    createFinanceChart();
 
 }
 
@@ -2056,6 +2104,92 @@ supabaseClient.auth.onAuthStateChange(
 
 })();
 
+function createFinanceChart(){
+
+  const canvas =
+    document.getElementById('financeChart');
+
+  if(!canvas) return;
+
+  const months = [
+    'Jan','Fev','Mar','Abr','Mai','Jun',
+    'Jul','Ago','Set','Out','Nov','Dez'
+  ];
+
+  const contracted = Array(12).fill(0);
+  const received = Array(12).fill(0);
+
+  events.forEach(e => {
+
+    if(e.cancelled) return;
+
+    const month =
+      Number(e.date.slice(5,7)) - 1;
+
+    if(month < 0 || month > 11) return;
+
+    contracted[month] += Number(e.value || 0);
+
+    received[month] += e.payments.reduce(
+      (sum,p) => sum + Number(p.amount || 0),
+      0
+    );
+
+  });
+
+  if(window.financeChartInstance){
+    window.financeChartInstance.destroy();
+  }
+
+  window.financeChartInstance =
+    new Chart(canvas,{
+      type:'bar',
+
+      data:{
+        labels:months,
+
+        datasets:[
+          {
+            label:'Faturamento',
+            data:contracted
+          },
+          {
+            label:'Recebido',
+            data:received
+          }
+        ]
+      },
+
+      options:{
+        responsive:true,
+        maintainAspectRatio:false,
+
+        plugins:{
+          legend:{
+            position:'top'
+          }
+        },
+
+        scales:{
+          y:{
+            beginAtZero:true,
+
+            ticks:{
+              callback:value =>
+                Number(value).toLocaleString(
+                  'pt-BR',
+                  {
+                    style:'currency',
+                    currency:'BRL',
+                    maximumFractionDigits:0
+                  }
+                )
+            }
+          }
+        }
+      }
+    });
+}
 </script>
 
 </body>
