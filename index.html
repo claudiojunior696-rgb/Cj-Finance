@@ -974,6 +974,19 @@ tbody tr:hover{
         <option value="pending">Pendente</option>
         <option value="cancel">Cancelado</option>
       </select>
+      <div class="period-buttons">
+  <button type="button" class="secondary" onclick="setPeriod('all')">
+    Todos
+  </button>
+
+  <button type="button" class="secondary" onclick="setPeriod('current')">
+    Este mês
+  </button>
+
+  <button type="button" class="secondary" onclick="setPeriod('previous')">
+    Mês anterior
+  </button>
+</div>
       <input
   type="month"
   id="periodFilter"
@@ -1713,7 +1726,34 @@ async function removeEvent(id){
    RENDER
 ========================= */
 
-function render(){
+function setPeriod(type){
+
+  const input =
+    document.getElementById('periodFilter');
+
+  if(type === 'all'){
+    input.value = '';
+  }
+
+  if(type === 'current'){
+    input.value =
+      new Date().toISOString().slice(0,7);
+  }
+
+  if(type === 'previous'){
+
+    const date = new Date();
+
+    date.setMonth(date.getMonth() - 1);
+
+    input.value =
+      date.toISOString().slice(0,7);
+  }
+
+  render();
+}
+
+  function render(){
 
   const q=
     document.getElementById('search')
