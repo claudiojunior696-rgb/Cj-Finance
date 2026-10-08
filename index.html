@@ -1721,6 +1721,8 @@ function render(){
 
   const f=
     document.getElementById('filter').value;
+  const period =
+  document.getElementById('periodFilter').value;
 
 
   const filtered=events
@@ -1735,6 +1737,10 @@ function render(){
       f==='all' ||
       status(e)[0]===f
     )
+    .filter(e =>
+  !period ||
+  e.date.startsWith(period)
+)
 
     .sort((a,b)=>
       a.date.localeCompare(b.date)
