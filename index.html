@@ -974,6 +974,12 @@ tbody tr:hover{
         <option value="pending">Pendente</option>
         <option value="cancel">Cancelado</option>
       </select>
+      <input
+  type="month"
+  id="periodFilter"
+  onchange="render()"
+  title="Filtrar por mês"
+>
 
       <button class="secondary" onclick="exportCSV()">
         Exportar CSV
