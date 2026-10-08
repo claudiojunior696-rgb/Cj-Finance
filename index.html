@@ -134,7 +134,8 @@ th{color:var(--muted);font-size:12px;text-transform:uppercase}
   width:100%;
 }
 .formactions{
-  display:flex;justify-content:flex-end;gap:9px;margin-top:18px
+  display:flex;justify-content:flex-end;gap:9px;margin-top:18px;
+  grid-column:1 / -1;
 }
 .payment-list{margin-top:12px;border-top:1px solid var(--border)}
 .payment{
@@ -815,6 +816,7 @@ tbody tr:hover{
   grid-template-columns:repeat(3,1fr);
   gap:12px;
   margin-top:16px;
+  grid-column:1 / -1;
 }
 
 .summary-item{
