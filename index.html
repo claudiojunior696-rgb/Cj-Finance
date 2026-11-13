@@ -1635,7 +1635,22 @@ function editEvent(id){
   document.getElementById('value').value=e.value;
   document.getElementById('note').value=e.note;
 
-  document.getElementById('service').value=e.service;
+ const serviceSelect = document.getElementById('service');
+const savedService = e.service || '';
+
+if (
+  savedService &&
+  !Array.from(serviceSelect.options).some(
+    option => option.value === savedService
+  )
+) {
+  const option = document.createElement('option');
+  option.value = savedService;
+  option.textContent = savedService;
+  serviceSelect.appendChild(option);
+}
+
+serviceSelect.value = savedService;
 
   document.getElementById('modalTitle').textContent =
     'Editar evento';
